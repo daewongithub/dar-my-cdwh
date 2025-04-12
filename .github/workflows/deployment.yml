@@ -15,5 +15,4 @@ jobs:
       - name: Run a simple command
         run: |
           echo "Hello from dar-my-small runner!"
-          pwd
-          ls -la
+          dir
