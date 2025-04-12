@@ -1,0 +1,19 @@
+name: Example Workflow
+
+on:
+  push:
+    branches:
+      - main_dev
+
+jobs:
+  build:
+    runs-on: [dar-my-small]  # Targets your self-hosted runner
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # Checks out your repository code
+
+      - name: Run a simple command
+        run: |
+          echo "Hello from dar-my-small runner!"
+          pwd
+          ls -la
