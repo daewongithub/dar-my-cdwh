@@ -1,0 +1,148 @@
+name: Deploy Repos to Servers
+
+on:
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  deploy:
+    runs-on: [dar-my-small]
+    steps:
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          # Add servers to known_hosts (replace with IPs if needed)
+          ssh-keyscan dwhoraema >> ~/.ssh/known_hosts
+          ssh-keyscan dwhoraeba >> ~/.ssh/known_hosts
+          ssh-keyscan dwhorasba >> ~/.ssh/known_hosts
+          ssh-keyscan dwhorasma >> ~/.ssh/known_hosts
+          ssh-keyscan dwhoraqba >> ~/.ssh/known_hosts
+          ssh-keyscan dwhoraqma >> ~/.ssh/known_hosts
+          ssh-keyscan dwhorapba >> ~/.ssh/known_hosts
+          ssh-keyscan dwhorapma >> ~/.ssh/known_hosts
+
+      - name: Deploy dar-my-cdwh
+        run: |
+          git clone git@github.com:dar-my-CH/dar-my-cdwh.git
+          cd dar-my-cdwh
+          git checkout main || (git checkout -b main && echo "# dar-my-cdwh" > README.md && git add README.md && git commit -m "Initial commit" && git push origin main)
+
+          # Deploy main_dev to dwhoraema, dwhoraeba
+          if git rev-parse --verify main_dev >/dev/null 2>&1; then
+            git checkout main_dev
+            ssh ch_dwhbatch@dwhoraema "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhoraema:/project/batch/dar-my-cdwh/
+            ssh ch_dwhbatch@dwhoraeba "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhoraeba:/project/batch/dar-my-cdwh/
+          fi
+
+          # Deploy main_tst to dwhorasba, dwhorasma
+          if git rev-parse --verify main_tst >/dev/null 2>&1; then
+            git checkout main_tst
+            ssh ch_dwhbatch@dwhorasba "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhorasba:/project/batch/dar-my-cdwh/
+            ssh ch_dwhbatch@dwhorasma "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhorasma:/project/batch/dar-my-cdwh/
+          fi
+
+          # Deploy main_prp to dwhoraqba, dwhoraqma
+          if git rev-parse --verify main_prp >/dev/null 2>&1; then
+            git checkout main_prp
+            ssh ch_dwhbatch@dwhoraqba "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhoraqba:/project/batch/dar-my-cdwh/
+            ssh ch_dwhbatch@dwhoraqma "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhoraqma:/project/batch/dar-my-cdwh/
+          fi
+
+          # Deploy main_prd to dwhorapba, dwhorapma
+          if git rev-parse --verify main_prd >/dev/null 2>&1; then
+            git checkout main_prd
+            ssh ch_dwhbatch@dwhorapba "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhorapba:/project/batch/dar-my-cdwh/
+            ssh ch_dwhbatch@dwhorapma "rm -rf /project/batch/dar-my-cdwh/*"
+            scp -r ./* ch_dwhbatch@dwhorapma:/project/batch/dar-my-cdwh/
+          fi
+
+      - name: Deploy dar-my-tw1
+        run: |
+          git clone git@github.com:dar-my-CH/dar-my-tw1.git
+          cd dar-my-tw1
+          git checkout main || (git checkout -b main && echo "# dar-my-tw1" > README.md && git add README.md && git commit -m "Initial commit" && git push origin main)
+
+          if git rev-parse --verify main_dev >/dev/null 2>&1; then
+            git checkout main_dev
+            ssh ch_dwhbatch@dwhoraema "rm -rf /project/batch/dar-my-tw1/*"
+            scp -r ./* ch_dwhbatch@dwhoraema:/project/batch/dar-my-tw1/
+            ssh ch_dwhbatch@dwhoraeba "rm -rf /project/batch/dar-my-tw1/*"
+            scp -r ./* ch_dwhbatch@dwhoraeba:/project/batch/dar-my-tw1/
+          fi
+
+          if git rev-parse --verify main_prp >/dev/null 2>&1; then
+            git checkout main_prp
+            ssh ch_dwhbatch@dwhoraqba "rm -rf /project/batch/dar-my-tw1/*"
+            scp -r ./* ch_dwhbatch@dwhoraqba:/project/batch/dar-my-tw1/
+            ssh ch_dwhbatch@dwhoraqma "rm -rf /project/batch/dar-my-tw1/*"
+            scp -r ./* ch_dwhbatch@dwhoraqma:/project/batch/dar-my-tw1/
+          fi
+
+          if git rev-parse --verify main_prd >/dev/null 2>&1; then
+            git checkout main_prd
+            ssh ch_dwhbatch@dwhorapba "rm -rf /project/batch/dar-my-tw1/*"
+            scp -r ./* ch_dwhbatch@dwhorapba:/project/batch/dar-my-tw1/
+            ssh ch_dwhbatch@dwhorapma "rm -rf /project/batch/dar-my-tw1/*"
+            scp -r ./* ch_dwhbatch@dwhorapma:/project/batch/dar-my-tw1/
+          fi
+
+      - name: Deploy dar-my-rel
+        run: |
+          git clone git@github.com:dar-my-CH/dar-my-rel.git
+          cd dar-my-rel
+          git checkout main || (git checkout -b main && echo "# dar-my-rel" > README.md && git add README.md && git commit -m "Initial commit" && git push origin main)
+
+          if git rev-parse --verify main_dev-rel >/dev/null 2>&1; then
+            git checkout main_dev-rel
+            ssh ch_dwhbatch@dwhoraema "rm -rf /project/batch/dar-my-rel/*"
+            scp -r ./* ch_dwhbatch@dwhoraema:/project/batch/dar-my-rel/
+            ssh ch_dwhbatch@dwhoraeba "rm -rf /project/batch/dar-my-rel/*"
+            scp -r ./* ch_dwhbatch@dwhoraeba:/project/batch/dar-my-rel/
+          fi
+
+          if git rev-parse --verify main_tst-rel >/dev/null 2>&1; then
+            git checkout main_tst-rel
+            ssh ch_dwhbatch@dwhorasba "rm -rf /project/batch/dar-my-rel/*"
+            scp -r ./* ch_dwhbatch@dwhorasba:/project/batch/dar-my-rel/
+            ssh ch_dwhbatch@dwhorasma "rm -rf /project/batch/dar-my-rel/*"
+            scp -r ./* ch_dwhbatch@dwhorasma:/project/batch/dar-my-rel/
+          fi
+
+      - name: Deploy dar-my-hotfix
+        run: |
+          git clone git@github.com:dar-my-CH/dar-my-hotfix.git
+          cd dar-my-hotfix
+          git checkout main || (git checkout -b main && echo "# dar-my-hotfix" > README.md && git add README.md && git commit -m "Initial commit" && git push origin main)
+
+          if git rev-parse --verify main_dev >/dev/null 2>&1; then
+            git checkout main_dev
+            ssh ch_dwhbatch@dwhoraema "rm -rf /project/batch/dar-my-hotfix/*"
+            scp -r ./* ch_dwhbatch@dwhoraema:/project/batch/dar-my-hotfix/
+            ssh ch_dwhbatch@dwhoraeba "rm -rf /project/batch/dar-my-hotfix/*"
+            scp -r ./* ch_dwhbatch@dwhoraeba:/project/batch/dar-my-hotfix/
+          fi
+
+          if git rev-parse --verify main_tst >/dev/null 2>&1; then
+            git checkout main_tst
+            ssh ch_dwhbatch@dwhorasba "rm -rf /project/batch/dar-my-hotfix/*"
+            scp -r ./* ch_dwhbatch@dwhorasba:/project/batch/dar-my-hotfix/
+            ssh ch_dwhbatch@dwhorasma "rm -rf /project/batch/dar-my-hotfix/*"
+            scp -r ./* ch_dwhbatch@dwhorasma:/project/batch/dar-my-hotfix/
+          fi
+
+          if git rev-parse --verify main_hotfix >/dev/null 2>&1; then
+            git checkout main_hotfix
+            ssh ch_dwhbatch@dwhorasba "rm -rf /project/batch/dar-my-hotfix/*"
+            scp -r ./* ch_dwhbatch@dwhorasba:/project/batch/dar-my-hotfix/
+            ssh ch_dwhbatch@dwhorasma "rm -rf /project/batch/dar-my-hotfix/*"
+            scp -r ./* ch_dwhbatch@dwhorasma:/project/batch/dar-my-hotfix/
+          fi
